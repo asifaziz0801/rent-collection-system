@@ -1,0 +1,1043 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rent Collection Management System</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#718096;--primary:#4f46e5;--green:#16a34a;--red:#dc2626;--amber:#d97706;--border:#e5e7eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.app{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#111827;color:#fff;padding:22px 14px;position:fixed;top:0;bottom:0;left:0}
+.logo{font-size:20px;font-weight:800;padding:8px 12px 24px}
+.logo span{color:#818cf8}
+.nav button{width:100%;background:transparent;color:#cbd5e1;text-align:left;padding:12px 14px;border-radius:9px;margin:3px 0}
+.nav button.active,.nav button:hover{background:#1f2937;color:#fff}
+.nav i{font-style:normal;width:25px;display:inline-block}
+.main{margin-left:245px;width:calc(100% - 245px);padding:25px 30px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px;position:sticky;top:0;z-index:60;background:rgba(245,247,251,.98);padding:14px 0;border-bottom:1px solid #e5e7eb;box-shadow:0 4px 10px rgba(15,23,42,.06);backdrop-filter:blur(8px)}
+.top h1{margin:0;font-size:25px}
+.top p{margin:5px 0;color:var(--muted)}
+.btn{padding:10px 15px;border-radius:8px;background:var(--primary);color:#fff;font-weight:600}
+.btn.secondary{background:#eef2ff;color:#4338ca}
+.btn.danger{background:#fee2e2;color:#b91c1c}
+.btn.gray{background:#e5e7eb;color:#374151}
+.section{display:none}
+.section.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;box-shadow:0 6px 18px #2563eb18;min-width:0;min-height:108px;transition:background .22s ease,color .22s ease,transform .22s ease,box-shadow .22s ease;border-top:4px solid #3b82f6}
+.metric{font-size:26px;font-weight:800;margin:7px 0;overflow-wrap:anywhere}
+.label{color:var(--muted);font-size:13px}
+.positive{color:var(--green)}
+.negative{color:var(--red)}
+.warning{color:var(--amber)}
+.dashboard-cards{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
+.dashboard-cards .card{overflow-wrap:anywhere;position:relative;overflow:hidden;padding:14px;min-height:110px;box-shadow:0 7px 20px #2563eb22;border-top:4px solid #3b82f6}.dashboard-cards .card:nth-child(1),.rent-building-card:nth-child(4n+1),.building-summary-card:nth-child(4n+1),.report-mini:nth-child(4n+1){border-top-color:#3b82f6;box-shadow:0 7px 20px #3b82f622}.dashboard-cards .card:nth-child(2),.rent-building-card:nth-child(4n+2),.building-summary-card:nth-child(4n+2),.report-mini:nth-child(4n+2){border-top-color:#10b981;box-shadow:0 7px 20px #10b98122}.dashboard-cards .card:nth-child(3),.rent-building-card:nth-child(4n+3),.building-summary-card:nth-child(4n+3),.report-mini:nth-child(4n+3){border-top-color:#38bdf8;box-shadow:0 7px 20px #38bdf822}.dashboard-cards .card:nth-child(4),.rent-building-card:nth-child(4n+4),.building-summary-card:nth-child(4n+4),.report-mini:nth-child(4n+4){border-top-color:#f59e0b;box-shadow:0 7px 20px #f59e0b22}.dashboard-cards .card:hover{background:#172033!important;color:#fff;transform:translateY(-3px);box-shadow:0 12px 28px #0f172a55}.dashboard-cards .card:hover .label,.dashboard-cards .card:hover .mini-stats,.dashboard-cards .card:hover .mini-stats span,.dashboard-cards .card:hover .bill-line,.dashboard-cards .card:hover .bill-line small{color:#e2e8f0!important}.dashboard-cards .card:hover .metric,.dashboard-cards .card:hover b{color:#fff!important}.dashboard-cards .label{font-weight:700;font-size:12px;line-height:1.35;letter-spacing:.015em}.dashboard-cards .metric{font-size:clamp(21px,1.8vw,25px);line-height:1.2;margin:6px 0}.dashboard-cards .mini-stats{font-size:13px;line-height:1.55}.dashboard-cards .mini-stats span{font-size:12.5px}.dashboard-cards .mini-stats b{font-size:13px}.dashboard-cards .bill-line{font-size:12.5px;padding:6px 0}.dashboard-cards .bill-line small{font-size:11px}.rent-building-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:16px}.rent-building-card,.building-summary-card,.report-mini{border-radius:14px;padding:16px;background:#fff;border:1px solid #e2e8f0;min-height:112px;box-shadow:0 6px 18px #2563eb18;transition:background .2s ease,transform .2s ease,box-shadow .2s ease}.rent-building-card strong{display:block;font-size:13px;margin-bottom:8px}.rent-building-card b{font-size:21px}.rent-building-card small{display:block;color:var(--muted);margin-top:5px}.report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.report-mini b{font-size:20px;display:block;margin-top:8px}.invoice-form{margin-bottom:18px}.invoice-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.dashboard-cards .mini-stats{font-size:13px}
+
+.dashboard-cards .card:nth-child(1){background:linear-gradient(135deg,#eef2ff 0%,#fff 78%);border-top-color:#4f46e5}
+.dashboard-cards .card:nth-child(2){background:linear-gradient(135deg,#ecfdf5 0%,#fff 78%);border-top-color:#10b981}
+.dashboard-cards .card:nth-child(3){background:linear-gradient(135deg,#eff6ff 0%,#fff 78%);border-top-color:#38bdf8}
+.dashboard-cards .card:nth-child(1):hover,.dashboard-cards .card:nth-child(2):hover,.dashboard-cards .card:nth-child(3):hover{background:#172033!important}
+.dashboard-cards .mini-stats{gap:5px;margin-top:8px}
+.dashboard-cards .mini-stats span{font-size:12px;line-height:1.35}
+.dashboard-cards .label{font-size:12px}
+.rent-building-landscape{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 16px;padding:15px 18px;background:#fff;border:1px solid #dbe4f0;border-top:4px solid #10b981;border-radius:14px;box-shadow:0 6px 18px #2563eb18;min-height:90px}
+.rent-building-landscape .rent-landscape-title{min-width:150px;flex:1}
+.rent-building-landscape .rent-landscape-title strong{display:block;font-size:15px}
+.rent-building-landscape .rent-landscape-title small{display:block;color:var(--muted);margin-top:4px}
+.rent-building-landscape .summary-stat{min-width:90px;padding:4px 12px;border-left:1px solid var(--border)}
+.rent-building-landscape .summary-stat span{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase}
+.rent-building-landscape .summary-stat b{display:block;font-size:20px;margin-top:4px}
+.rent-building-landscape .rent-building-breakdown{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:10px}
+.rent-building-landscape .rent-building-breakdown span{padding:6px 9px;border-radius:7px;background:#f3f6fb;color:#334155;font-size:12px}
+@media(max-width:650px){.rent-building-landscape{gap:10px}.rent-building-landscape .rent-landscape-title{flex-basis:100%}.rent-building-landscape .summary-stat{flex:1;min-width:70px;padding:4px 6px}}
+
+.mini-stats{display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:12px}
+.bill-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.bill-line:last-child{border-bottom:0}
+.bill-line small{grid-column:1/-1;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+.panel{background:#fff;border:1px solid var(--border);border-radius:13px;padding:18px}
+.panel h3{margin:0 0 15px}
+.dashboard-progress{margin-top:18px}
+.dashboard-extra{margin-top:18px}
+.dashboard-chart-memos{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;margin-top:18px;align-items:stretch}
+.dashboard-chart-memos>.panel{margin-top:0;min-width:0}
+.dashboard-chart-memos .chart-panel{height:100%;min-height:320px}
+.building-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:16px}
+.building-summary-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;min-height:112px;box-shadow:0 6px 18px #2563eb18}
+.building-summary-card h4{margin:0 0 10px;font-size:14px;color:var(--text)}
+.rent-building-card:hover,.building-summary-card:hover,.report-mini:hover{background:#172033;color:#fff;transform:translateY(-2px);box-shadow:0 12px 24px #0f172a30}.rent-building-card:hover small,.building-summary-card:hover h4,.building-summary-card:hover .building-summary-numbers,.building-summary-card:hover .building-summary-numbers b,.report-mini:hover{color:#fff}.card,.rent-building-card,.building-summary-card,.report-mini{box-sizing:border-box}
+.building-summary-numbers{display:flex;gap:12px;flex-wrap:wrap;font-size:12px}
+.building-summary-numbers b{font-size:16px;display:block;margin-top:3px;color:var(--text)}
+
+.building-summary-landscape{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin:0 0 16px;padding:15px 18px;background:#fff;border:1px solid #dbe4f0;border-top:4px solid #3b82f6;border-radius:14px;box-shadow:0 6px 18px #2563eb18;min-height:100px}
+.building-summary-landscape .summary-heading{min-width:190px;flex:1}
+.building-summary-landscape .summary-heading strong{display:block;font-size:15px;margin-bottom:5px}
+.building-summary-landscape .summary-heading span{font-size:12px;color:var(--muted)}
+.building-summary-landscape .summary-stat{min-width:92px;padding:4px 10px;border-left:1px solid var(--border)}
+.building-summary-landscape .summary-stat span{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase}
+.building-summary-landscape .summary-stat b{display:block;font-size:20px;margin-top:4px}
+.building-summary-landscape .building-breakdown{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.building-summary-landscape .building-breakdown span{background:#f3f6fb;border-radius:7px;padding:6px 9px;color:#334155}
+.report-mini,.rent-building-card{border-radius:14px;min-height:108px;padding:15px;box-shadow:0 6px 18px #2563eb18;border:1px solid #e2e8f0}
+@media(max-width:650px){.building-summary-landscape{gap:10px}.building-summary-landscape .summary-heading{flex-basis:100%}.building-summary-landscape .summary-stat{flex:1;min-width:70px;padding:4px 6px}.building-summary-landscape .building-breakdown{gap:5px}}
+
+.settings-block{margin-top:18px}
+.settings-block h3{margin-bottom:8px}
+.settings-help{font-size:12px;color:var(--muted);margin:6px 0 14px}
+.settings-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.file-input-hidden{display:none}
+.transaction-table td{vertical-align:middle}
+@media(max-width:1100px){.dashboard-chart-memos{grid-template-columns:1fr}}
+
+.chart-panel{position:relative;width:100%;height:340px;min-height:340px;overflow:hidden}
+.chart-panel canvas{display:block;width:100%;height:220px!important;max-width:100%}
+
+.data-panel{padding:12px 14px;overflow:visible}
+.sticky-data-head{position:sticky;top:74px;z-index:35;background:#fff;padding:0 0 5px;border-bottom:1px solid #e5e7eb;margin-bottom:6px}
+.sticky-data-head .rent-building-landscape,.sticky-data-head .building-summary-landscape{margin-bottom:7px;min-height:72px;padding:9px 14px;gap:12px}
+.sticky-data-head .toolbar{margin-bottom:5px;gap:6px}
+.sticky-data-head .summary-stat{padding:3px 8px}
+.sticky-data-head .summary-stat b{font-size:18px;margin-top:2px}
+.sticky-data-head .rent-building-breakdown{padding-top:6px}
+.tablewrap thead th{position:sticky;top:0;z-index:10;background:#f8fafc;box-shadow:0 1px 0 #e5e7eb}
+.data-panel .tablewrap{max-height:none}
+@media(max-width:700px){.sticky-data-head{top:67px}.sticky-data-head .filters{gap:5px}.sticky-data-head .input{padding:7px 8px}.sticky-data-head .rent-building-landscape,.sticky-data-head .building-summary-landscape{gap:6px}}
+
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-size:12px;color:var(--muted);text-transform:uppercase}
+td{font-size:14px}
+.total-row td{font-weight:700;background:#eff6ff;border-top:2px solid #93c5fd}.total-row td:first-child{color:#1d4ed8}.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700}
+.paid{background:#dcfce7;color:#166534}
+.due{background:#fee2e2;color:#991b1b}
+.partial{background:#fef3c7;color:#92400e}
+.vacant{background:#e5e7eb;color:#4b5563}
+.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap}
+.filters{display:flex;gap:9px;flex-wrap:wrap}
+.input,select,textarea{border:1px solid #d1d5db;border-radius:8px;padding:9px 11px;background:#fff}
+.search{min-width:220px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.field.full{grid-column:1/-1}
+.field input,.field select,.field textarea{width:100%}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal.show{display:flex}
+.modalbox{background:#fff;width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:14px;padding:22px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.close{background:#f3f4f6;border-radius:8px;padding:7px 11px}
+.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+.bar{height:9px;background:#eef2f7;border-radius:10px;overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--primary);border-radius:10px}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.memo-income{color:var(--green);font-weight:700}
+.memo-cost{color:var(--red);font-weight:700}
+@media(max-width:1200px){.dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){
+.sidebar{width:70px}
+.logo{font-size:0}
+.logo span{font-size:18px}
+.nav button{font-size:0;text-align:center}
+.nav i{font-size:18px}
+.main{margin-left:70px;width:calc(100% - 70px);padding:18px}
+.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid2{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+.cards,.dashboard-cards{grid-template-columns:minmax(0,1fr)}
+.formgrid{grid-template-columns:1fr}
+.main{padding:12px}
+.top h1{font-size:21px}
+.top{align-items:flex-start}
+.search{min-width:160px;width:100%}
+}
+
+/* Modern unified room/rent data workspace */
+.data-panel{padding:0;border:1px solid #dbe4f0;border-radius:20px;overflow:visible;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.07)}
+.sticky-data-head{position:sticky;top:78px;z-index:35;background:rgba(255,255,255,.97);padding:14px 16px 12px;border:0;border-bottom:1px solid #dbe4f0;border-radius:20px 20px 0 0;margin:0;backdrop-filter:blur(12px);box-shadow:0 7px 18px rgba(15,23,42,.045)}
+.sticky-data-head .rent-building-landscape,.sticky-data-head .building-summary-landscape{margin:0 0 10px;min-height:64px;padding:9px 14px;gap:10px;border-radius:13px;box-shadow:none;border:1px solid #dbe4f0;border-left:4px solid #4f46e5;background:linear-gradient(105deg,#f8faff,#fff)}
+.sticky-data-head .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0;flex-wrap:wrap}
+.sticky-data-head .filters{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;min-width:0}
+.data-section-title{order:2;min-width:170px;text-align:right;margin-left:auto;display:flex;flex-direction:column;gap:3px}
+.data-section-title strong{font-size:17px;letter-spacing:-.02em;color:#172554;line-height:1.2}
+.data-section-title span{font-size:11px;color:#64748b}
+.rent-filters .filters{order:1}.rent-filters .data-section-title{order:2}
+.rooms-toolbar .filters{order:1}.rooms-toolbar .data-section-title{order:2}
+.data-panel .input{border-radius:10px;border:1px solid #dbe3ef;background:#f9fbff;min-height:37px}
+.data-panel .btn{border-radius:10px;white-space:nowrap}
+.data-panel .tablewrap{max-height:calc(100vh - 275px);min-height:250px;overflow:auto;border-radius:0 0 20px 20px;overscroll-behavior:contain;scrollbar-gutter:stable}
+.data-panel table{border-collapse:separate;border-spacing:0;min-width:100%;}
+.data-panel table thead th{position:sticky;top:0;z-index:12;background:linear-gradient(180deg,#e9efff,#dfe8ff);color:#273b73;border-bottom:1px solid #c7d5f5;padding:12px 11px;font-size:11px;letter-spacing:.045em;box-shadow:0 2px 0 rgba(37,59,114,.08)}
+.data-panel table thead th:first-child{border-top-left-radius:8px}
+.data-panel table tbody td{padding:10px 11px;border-bottom:1px solid #edf1f7}
+.data-panel table tbody tr:nth-child(even){background:#fafcff}
+.data-panel table tbody tr:hover{background:#f0f6ff}
+.data-panel .tablewrap::-webkit-scrollbar{height:10px;width:10px}
+.data-panel .tablewrap::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:20px;border:2px solid #f8fafc}
+.data-panel .tablewrap::-webkit-scrollbar-track{background:#f8fafc}
+@media(max-width:900px){.sticky-data-head{top:72px}.data-panel .tablewrap{max-height:calc(100vh - 310px)}.data-section-title{min-width:130px}.data-section-title strong{font-size:15px}}
+@media(max-width:650px){.main{padding:12px}.sticky-data-head{top:64px;padding:10px;border-radius:16px 16px 0 0}.sticky-data-head .toolbar{align-items:stretch}.sticky-data-head .filters{width:100%}.sticky-data-head .input{flex:1;min-width:120px}.data-section-title{width:100%;text-align:left;order:0;margin:0}.rent-filters .filters,.rooms-toolbar .filters{order:1}.data-panel .tablewrap{max-height:calc(100vh - 365px);min-height:220px}.sticky-data-head .rent-building-landscape,.sticky-data-head .building-summary-landscape{gap:7px;padding:9px}.sticky-data-head .summary-stat{min-width:70px}}
+
+
+ /* Final polish: Rooms & Tenants and Rent Collection workspaces */
+ .main.data-workspace > .top{display:none}
+ .data-panel .sticky-data-head{padding:18px 18px 16px}
+ .data-panel .data-section-title{order:2;min-width:220px;text-align:right;margin-left:auto;align-self:center}
+ .data-panel .data-section-title strong{font-size:23px;font-weight:800;letter-spacing:-.035em;line-height:1.15;color:#172554}
+ .data-panel .data-section-title span{display:none}
+ .data-panel .sticky-data-head .toolbar{gap:18px}
+ .data-panel .sticky-data-head .filters{gap:7px}
+ .data-panel .filters .input{min-height:32px;padding:6px 9px;font-size:12px;border-radius:8px}
+ .data-panel .filters .btn{min-height:32px;padding:7px 10px;font-size:12px;border-radius:8px}
+ #rentBuildingCards{margin-bottom:18px}
+ #buildingSummaryCards{margin-top:18px}
+ .data-panel .tablewrap{max-height:calc(100vh - 300px)}
+ @media(max-width:650px){
+   .data-panel .sticky-data-head{padding:12px}
+   .data-panel .data-section-title{width:100%;min-width:0;text-align:right;order:0;margin:0 0 4px}
+   .data-panel .data-section-title strong{font-size:21px}
+   .data-panel .sticky-data-head .filters{gap:6px}
+   .data-panel .filters .input{font-size:12px;min-height:31px;padding:6px 8px}
+   .data-panel .filters .btn{font-size:11px;min-height:31px;padding:6px 8px}
+   #rentBuildingCards{margin-bottom:16px}
+   #buildingSummaryCards{margin-top:16px}
+ }
+
+</style>
+
+<style id="square-corners-and-table-heading-fix">
+/* Square-corner design throughout the application */
+*, *::before, *::after { border-radius: 0 !important; }
+/* Clear, visible column-heading row for Rooms & Tenants and Rent Collection */
+.data-panel .tablewrap table thead { display: table-header-group !important; }
+.data-panel .tablewrap table thead tr { display: table-row !important; }
+.data-panel .tablewrap table thead th {
+  position: sticky !important; top: 0 !important; z-index: 20 !important;
+  background: #253b72 !important; color: #fff !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  text-align: left; padding: 13px 11px !important;
+  border-bottom: 2px solid #172554 !important;
+  white-space: nowrap; box-shadow: none !important;
+}
+.data-panel .tablewrap table { border-collapse: separate; border-spacing: 0; }
+.data-panel .tablewrap tbody td { border-bottom: 1px solid #dbe3ef; }
+</style>
+<style id="final-layout-adjustments">
+/* Keep all data-workspace corners square and align summary cards before filters */
+.data-panel,.data-panel .sticky-data-head,.data-panel .tablewrap,.rent-building-landscape,.building-summary-landscape,.rent-building-card,.building-summary-card {border-radius:0!important}
+.data-panel .sticky-data-head .rent-building-landscape,.data-panel .sticky-data-head .building-summary-landscape{display:flex;order:0;margin:0 0 16px!important}
+.data-panel .sticky-data-head .toolbar{order:1}
+.data-panel .sticky-data-head .tablewrap table thead th,.data-panel .tablewrap table thead th{position:sticky!important;top:0!important;z-index:30!important;background:#253b72!important;color:#fff!important}
+.dashboard-cards .metric{font-size:clamp(26px,2.2vw,32px)!important}
+.dashboard-cards .mini-stats,.dashboard-cards .mini-stats span{font-size:14px!important;line-height:1.55!important}
+.dashboard-cards .mini-stats b{font-size:15px!important;font-weight:800!important}
+.dashboard-cards .label{font-size:13px!important}
+@media(max-width:650px){.dashboard-cards .metric{font-size:27px!important}.dashboard-cards .mini-stats,.dashboard-cards .mini-stats span{font-size:13px!important}.dashboard-cards .mini-stats b{font-size:14px!important}}
+</style>
+
+
+<style id="table-heading-and-dashboard-alignment-final">
+/* Keep both data tables' column headings visible directly beneath the filters and frozen while rows scroll. */
+.data-panel .tablewrap{position:relative;display:block;overflow:auto!important;max-height:calc(100vh - 300px)!important;min-height:250px;isolation:isolate;border:1px solid #d6deeb}
+.data-panel .tablewrap table{width:100%;border-collapse:separate!important;border-spacing:0;table-layout:auto}
+.data-panel .tablewrap table thead{display:table-header-group!important;visibility:visible!important}
+.data-panel .tablewrap table thead tr{display:table-row!important;visibility:visible!important}
+.data-panel .tablewrap table thead th{position:sticky!important;top:0!important;display:table-cell!important;visibility:visible!important;opacity:1!important;z-index:8!important;background:#253b72!important;color:#fff!important;border-bottom:2px solid #172554!important;padding:12px 10px!important;white-space:nowrap!important}
+.data-panel .tablewrap table tbody{visibility:visible!important}
+/* Consistent square-corner layout: summary card first, filters second, table headings third. */
+.data-panel .sticky-data-head{position:relative!important;top:auto!important;display:flex;flex-direction:column;gap:12px;margin-bottom:0!important;padding:12px 12px 14px!important;border-bottom:1px solid #d6deeb!important;z-index:2!important}
+.data-panel .sticky-data-head #rentBuildingCards,.data-panel .sticky-data-head #buildingSummaryCards{order:0!important;margin:0!important;width:100%}
+.data-panel .sticky-data-head .toolbar{order:1!important;width:100%;margin:0!important;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.data-panel .sticky-data-head .toolbar .filters{order:0!important}
+.data-panel .sticky-data-head .toolbar .data-section-title{order:1!important}
+/* Three primary dashboard cards use matching rows and aligned amount || percentage values. */
+.dashboard-cards{grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:stretch}
+.dashboard-cards>.card{display:flex;flex-direction:column;min-width:0}
+.dashboard-cards>.card:nth-child(-n+3) .mini-stats{display:grid!important;grid-template-columns:1fr;gap:7px!important;margin-top:auto!important;padding-top:10px}
+.dashboard-cards>.card:nth-child(-n+3) .mini-stats span{display:grid;grid-template-columns:minmax(80px,1fr) minmax(0,1.35fr);align-items:center;gap:8px;min-height:27px;border-top:1px solid #dbe4f0;padding-top:7px}
+.dashboard-cards>.card:nth-child(-n+3) .mini-stats b{display:block;text-align:right;font-size:clamp(13px,1.1vw,16px)!important;font-weight:800!important;white-space:nowrap}
+.dashboard-cards>.card:nth-child(-n+3) .label{min-height:34px;font-size:14px!important}
+#roomProportion{display:none}
+@media(max-width:900px){.dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.data-panel .tablewrap{max-height:calc(100vh - 310px)!important}}
+@media(max-width:650px){.dashboard-cards{grid-template-columns:1fr!important}.dashboard-cards>.card:nth-child(-n+3) .mini-stats b{font-size:14px!important}.data-panel .sticky-data-head .toolbar{align-items:flex-start;flex-direction:column}.data-panel .sticky-data-head .toolbar .data-section-title{order:0!important;text-align:right;width:100%}.data-panel .sticky-data-head .toolbar .filters{order:1!important;width:100%}.data-panel .tablewrap{max-height:calc(100vh - 330px)!important;min-height:220px}}
+</style>
+
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">Rent<span>Management</span></div>
+  <div class="nav">
+    <button class="active" onclick="showSection('dashboard',this)"><i>▦</i> Dashboard</button>
+    <button onclick="showSection('rooms',this)"><i>▤</i> Rooms & Tenants</button>
+    <button onclick="showSection('rent',this)"><i>৳</i> Rent Collection</button>
+    <button onclick="showSection('memo',this)"><i>📝</i> Memo / Expenses</button>
+    <button onclick="showSection('reports',this)"><i>▥</i> Reports</button>
+    <button onclick="showSection('settings',this)"><i>⚙</i> Settings</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div><h1 id="pageTitle">Dashboard</h1><p id="pageSub">Overview of your property and monthly rent collection</p></div>
+  </div>
+
+  <section id="dashboard" class="section active">
+    <div class="cards dashboard-cards">
+      <div class="card">
+        <div class="label">Expected Annual Rent</div>
+        <div class="metric" id="annualExpected">৳0</div>
+        <div class="mini-stats">
+          <span class="positive">Collection: <b id="annualCollection">৳0 || 0%</b></span>
+          <span class="negative">Outstanding: <b id="annualDue">৳0 || 0%</b></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">Expected Monthly Rent</div>
+        <div class="metric" id="totalRent">৳0</div>
+        <div class="mini-stats">
+          <span class="positive">Collection: <b id="collected">৳0 || 0%</b></span>
+          <span class="negative">Outstanding: <b id="outstanding">৳0 || 0%</b></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">Total No. Rooms</div>
+        <div class="metric" id="roomOccupancy">0</div>
+        <div class="mini-stats">
+          <span>Occupied: <b id="occupiedRooms">0 || 0%</b></span>
+          <span>Vacancies: <b id="vacantRooms">0 || 0%</b></span>
+        </div>
+        <div class="label" id="roomProportion">0% occupied · 0% vacant</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Current Month Bills</div>
+        <div class="bill-line"><span>Electricity Bill</span><b class="warning" id="electricityPending">৳0</b><small id="electricityBillStatus">Pending: ৳0 · Paid: ৳0</small></div>
+        <div class="bill-line"><span>Water Bill</span><b class="warning" id="waterPending">৳0</b><small id="waterBillStatus">Pending: ৳0 · Paid: ৳0</small></div>
+        <div class="bill-line"><span>Gas Bill</span><b class="positive" id="gasPaid">৳0</b><small id="gasBillStatus">Pending: ৳0 · Paid: ৳0</small></div>
+      </div>
+    </div>
+
+    <div class="panel dashboard-progress">
+      <h3>Rent Collection Progress (Current Month)</h3>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span id="progressText">0%</span><span class="label">Collected vs Expected Rent</span></div>
+      <div class="bar"><span id="progressBar" style="width:0%"></span></div>
+      <div class="tablewrap" style="margin-top:18px">
+        <table>
+          <thead><tr><th>Building</th><th>Total Rooms</th><th>Occupied Rooms</th><th>Vacant Rooms</th><th>Total Rent</th><th>Collection</th><th>Dues</th><th>Proportion</th></tr></thead>
+          <tbody id="dashTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dashboard-chart-memos">
+      <div class="panel chart-panel">
+        <div class="toolbar"><h3 style="margin:0">Monthly Collection - Last 5 Months</h3><div class="filters"><label class="label" for="chartEndMonth">End month</label><input class="input" type="month" id="chartEndMonth" onchange="drawCollectionChart()"></div></div>
+        <canvas id="collectionChart" height="220"></canvas>
+      </div>
+      <div class="panel dashboard-extra">
+        <div class="toolbar"><h3 style="margin:0">Recent Memos</h3><button class="btn secondary" onclick="showSection('memo',document.querySelectorAll('.nav button')[3])">View All</button></div>
+        <div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Room</th><th>Description</th><th>Amount</th></tr></thead><tbody id="recentMemoTable"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="panel dashboard-extra">
+      <h3>Top 10 Outstanding Dues</h3>
+      <div class="tablewrap"><table><thead><tr><th>Building</th><th>Room</th><th>Tenant</th><th>Monthly Rent</th><th>Collected</th><th>Outstanding</th></tr></thead><tbody id="topDuesTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="rent" class="section">
+    <div class="panel data-panel">
+      <div class="sticky-data-head">
+        <div id="rentBuildingCards" class="rent-building-landscape"></div>
+        <div class="toolbar rent-filters"><div class="filters"><input id="rentSearch" class="input search" placeholder="Search phone, room or tenant..." oninput="renderRent()"><select id="monthFilter" class="input" onchange="renderRent()"></select><select id="rentStatusFilter" class="input" onchange="renderRent()"><option value="all">All</option><option value="partial">Partial</option><option value="vacant">Vacant</option><option value="paid">Paid</option><option value="due">Due</option></select></div><div class="data-section-title"><strong>Rent Collection</strong><span>Monthly payment overview</span></div></div>
+      </div>
+      <div class="tablewrap"><table><thead><tr><th>Building Name</th><th>Room No.</th><th>Name</th><th>Phone</th><th>Monthly Rent</th><th>Paid</th><th>Due</th><th>Total Duration</th><th>Status</th><th>Action</th></tr></thead><tbody id="rentTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="rooms" class="section">
+    <div class="panel data-panel">
+      <div class="sticky-data-head">
+        <div id="buildingSummaryCards" class="building-summary-landscape"></div>
+        <div class="toolbar rooms-toolbar"><div class="filters"><select id="occupancyFilter" class="input" onchange="renderRooms()"><option value="all">All</option><option value="Occupied">Occupied</option><option value="Vacant">Vacant</option></select><select id="buildingFilter" class="input" onchange="renderRooms()"><option value="all">All</option></select><select id="rentRangeFilter" class="input" onchange="renderRooms()"><option value="all">All</option><option value="500-1000">৳500 - 1,000</option><option value="1001-1500">৳1,001 - 1,500</option><option value="1501-2000">৳1,501 - 2,000</option><option value="2001-2500">৳2,001 - 2,500</option><option value="2501-3000">৳2,501 - 3,000</option><option value="3001-3500">৳3,001 - 3,500</option><option value="3501-4000">৳3,501 - 4,000</option><option value="4001-4500">৳4,001 - 4,500</option><option value="4501-5000">৳4,501 - 5,000</option><option value="5001-5500">৳5,001 - 5,500</option><option value="5501-6000">৳5,501 - 6,000</option></select><button class="btn danger" onclick="deleteSelectedRooms()">Delete Selected</button><button class="btn" onclick="openRoomModal()">+ Add Room</button></div><div class="data-section-title"><strong>Rooms & Tenants</strong><span>Buildings, rooms & rent</span></div></div>
+      </div>
+      <div class="tablewrap"><table><thead><tr><th><input type="checkbox" id="selectAllRooms" title="Select all visible rooms" onchange="toggleAllRooms(this.checked)"></th><th>Building Name</th><th>Room No.</th><th>Name</th><th>Phone</th><th>Rent</th><th>Electricity</th><th>Check-In-Date</th><th>Check-Out Date</th><th>Total Duration</th><th>Status</th><th>Action</th></tr></thead><tbody id="roomTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="memo" class="section">
+    <div class="panel">
+      <div class="toolbar"><div><b>Memo / Cash Book Invoice</b><div class="label">Record and print rent income, electricity bills and other costs</div></div></div>
+      <div class="invoice-form">
+        <div class="formgrid">
+          <div class="field"><label>Type</label><select id="memoEntryType"><option value="income">Income</option><option value="expense">Expense</option></select></div>
+          <div class="field"><label>Date</label><input type="date" id="memoDate"></div>
+          <div class="field"><label>Category</label><select id="memoCategory"><option>Rent</option><option>Electricity</option><option>Water</option><option>Gas</option><option>Maintenance</option><option>Repair</option><option>Other</option></select></div>
+          <div class="field"><label>Building</label><select id="memoBuilding" onchange="filterMemoRooms()"><option value="">All / General</option></select></div>
+          <div class="field"><label>Room No.</label><select id="memoRoom"><option value="">General / Property</option></select></div>
+          <div class="field"><label>Amount (৳)</label><input type="number" id="memoAmount" min="0"></div>
+          <div class="field"><label>Bill Status</label><select id="memoStatus"><option>Pending</option><option>Paid</option></select></div>
+          <div class="field"><label>Invoice / Reference No.</label><input id="memoInvoiceNo" placeholder="Optional reference"></div>
+          <div class="field full"><label>Description</label><textarea id="memoDescription" rows="2" placeholder="Transaction details"></textarea></div>
+        </div>
+        <div class="invoice-actions"><button class="btn" onclick="saveMemo()">Save</button><button class="btn secondary" onclick="updateMemo()">Edit Selected</button><button class="btn danger" onclick="deleteSelectedMemo()">Delete Selected</button><button class="btn gray" onclick="printMemo()">Print / Save PDF</button><button class="btn gray" onclick="clearMemoForm()">Clear Form</button></div><div class="label" id="memoFormMessage" style="margin-top:8px">Fill in the invoice and choose Save, or select Edit in the table.</div>
+      </div>
+      <div class="filters" style="margin-bottom:15px"><select id="memoType" class="input" onchange="renderMemos()"><option value="all">All</option><option value="income">Income</option><option value="expense">Expense</option></select><input id="memoSearch" class="input search" placeholder="Search memo..." oninput="renderMemos()"></div>
+      <div class="tablewrap"><table><thead><tr><th><input type="checkbox" id="selectAllMemos" title="Select all visible memos" onchange="toggleAllMemos(this.checked)"></th><th>Date</th><th>Type</th><th>Category</th><th>Building</th><th>Room No.</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead><tbody id="memoTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="reports" class="section">
+    <div class="cards">
+      <div class="card"><div class="label">Total Income</div><div class="metric positive" id="reportIncome">৳0</div></div>
+      <div class="card"><div class="label">Total Expenses</div><div class="metric negative" id="reportExpense">৳0</div></div>
+      <div class="card"><div class="label">Net Cash Flow</div><div class="metric" id="reportNet">৳0</div></div>
+      <div class="card"><div class="label">Occupancy</div><div class="metric" id="reportOcc">0%</div></div>
+    </div>
+    <div class="panel" style="margin-top:18px"><h3>Portfolio Summary</h3><div id="reportInsights" class="report-grid"></div></div><div class="panel" style="margin-top:18px"><h3>Monthly Financial Summary</h3><div id="reportSummary"></div></div>
+  </section>
+
+  <section id="settings" class="section">
+    <div class="panel">
+      <h3>Building Name Editor</h3><p class="settings-help">Building names are labels used across room lists, rent collection and reports. Renaming a building updates all rooms assigned to it.</p><div class="formgrid"><div class="field"><label>Existing Building</label><select id="renameBuildingSelect" onchange="loadBuildingRename()"><option value="">Select building</option></select></div><div class="field"><label>New Building Name</label><input id="renameBuildingInput" placeholder="Building_1 or Aziz Estate"></div></div><div class="actions"><button class="btn" onclick="renameBuilding()">Save Building Name</button></div></div>
+    <div class="panel settings-block">
+      <h3>Property & System Settings</h3><p class="settings-help">These settings are used for the property name on printed invoices and as default values for bulk room creation. Due day and electricity method are stored for reference; they do not automatically alter existing room records or payments.</p>
+      <div class="formgrid">
+        <div class="field"><label>Property Name</label><input id="propertyName" value="My Rental Property"></div>
+        <div class="field"><label>Currency</label><select id="currency"><option value="BDT (৳)">BDT (৳)</option></select></div>
+        <div class="field"><label>Default Electricity Method</label><select id="defaultElectricity"><option>Separate</option><option>Included in Rent</option></select></div>
+        <div class="field"><label>Default Payment Due Day</label><input id="dueDay" type="number" value="10" min="1" max="31"></div>
+        <div class="field"><label>Default Monthly Rent (৳)</label><input id="defaultRent" type="number" min="0" value="0"></div>
+        <div class="field"><label>Default Electricity Charge (৳)</label><input id="defaultElectricityCharge" type="number" min="0" value="0"></div>
+        <div class="field"><label>Property Contact Number</label><input id="propertyPhone" type="tel" placeholder="Optional"></div>
+        <div class="field"><label>Property Address</label><input id="propertyAddress" placeholder="Optional"></div>
+      </div>
+      <div class="actions"><button class="btn" onclick="saveSettings()">Save Settings</button></div>
+    </div>
+
+    <div class="panel settings-block">
+      <h3>Bulk Room Generator</h3>
+      <p class="settings-help">Enter a building number and room count. Room numbers are generated automatically (Building 3 creates rooms 301, 302, 303…). New rooms are saved directly to Rooms & Tenants as Vacant.</p>
+      <div class="formgrid">
+        <div class="field"><label>Building No.</label><input id="bulkBuildingNo" type="number" min="1" step="1" placeholder="e.g. 3"></div>
+        <div class="field"><label>Total Number of Rooms</label><input id="bulkRoomCount" type="number" min="1" max="99" step="1" placeholder="e.g. 20"></div>
+        <div class="field"><label>Monthly Rent (৳)</label><input id="bulkRoomRent" type="number" min="0" value="0"></div>
+        <div class="field"><label>Electricity (৳)</label><input id="bulkRoomElectricity" type="number" min="0" value="0"></div>
+      </div>
+      <div class="settings-actions">
+        <button class="btn secondary" onclick="previewBulkRooms()">Preview Room Numbers</button>
+        <button class="btn" onclick="generateBulkRooms()">Generate Rooms</button>
+      </div>
+      <div id="bulkRoomPreview" class="settings-help" aria-live="polite"></div>
+    </div>
+
+    <div class="panel settings-block">
+      <h3>Data Backup & System Summary</h3>
+      <div id="systemSummary" class="settings-help"></div>
+      <p class="settings-help">Export a backup before importing another file. Importing a backup replaces the current rooms, payments, memos and settings stored in this browser.</p>
+      <div class="settings-actions">
+        <button class="btn secondary" onclick="exportBackup()">Export Data Backup (JSON)</button>
+        <button class="btn secondary" onclick="document.getElementById('backupFile').click()">Import Data Backup</button>
+        <input id="backupFile" class="file-input-hidden" type="file" accept=".json,application/json" onchange="importBackup(event)">
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="modal" id="paymentModal"><div class="modalbox">
+<div class="modalhead"><h2>Record Rent Payment</h2><button class="close" onclick="closeModal('paymentModal')">✕</button></div>
+<div class="formgrid">
+<div class="field"><label>Room</label><select id="payRoom"></select></div>
+<div class="field"><label>Date</label><input type="date" id="payDate"></div>
+<div class="field"><label>Amount Paid</label><input type="number" id="payAmount" min="0"></div>
+<div class="field"><label>Payment Method</label><select id="payMethod"><option>Cash</option><option>Bank Transfer</option><option>Bkash</option><option>Nagad</option><option>Other</option></select></div>
+<div class="field full"><label>Note</label><textarea id="payNote" rows="2" placeholder="Optional note"></textarea></div>
+</div><div class="actions"><button class="btn gray" onclick="closeModal('paymentModal')">Cancel</button><button class="btn" onclick="savePayment()">Save Payment</button></div>
+</div></div>
+
+<div class="modal" id="roomModal"><div class="modalbox">
+<div class="modalhead"><h2 id="roomModalTitle">Add Room</h2><button class="close" onclick="closeModal('roomModal')">✕</button></div>
+<div class="formgrid">
+<div class="field"><label>Building</label><input id="building" list="buildingOptions" value="Building 1"><datalist id="buildingOptions"><option value="Building 1"><option value="Building 2"><option value="Building 3"><option value="Building 4"></datalist></div>
+<div class="field"><label>Room Number / Name</label><input id="roomNo"></div>
+<div class="field"><label>Tenant Name</label><input id="tenant"></div>
+<div class="field"><label>Phone</label><input id="phone"></div>
+<div class="field"><label>Monthly Rent</label><input type="number" id="roomRent" min="0"></div>
+<div class="field"><label>Electricity</label><input type="number" id="electricity" value="0" min="0"></div>
+<div class="field"><label>Check-In Date</label><input type="date" id="checkInDate"></div><div class="field"><label>Check-Out Date</label><input type="date" id="checkOutDate"></div>
+<div class="field"><label>Status</label><select id="roomStatus"><option>Vacant</option><option>Occupied</option></select></div>
+</div><div class="actions"><button class="btn gray" onclick="closeModal('roomModal')">Cancel</button><button class="btn" onclick="saveRoom()">Save Room</button></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://nxanptgttqmbmizyykxp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_BF8bpQo7fibNfnrTkZtTdA_Khkln6vb';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const KEY='rent_manager_v1';
+let data={rooms:[],payments:[],memos:[]};
+let settings={};
+let supabaseReady=false;
+
+function getLocalData(){
+  try{
+    const local=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(local && Array.isArray(local.rooms) && Array.isArray(local.payments) && Array.isArray(local.memos)) return local;
+  }catch(e){}
+  return {rooms:[],payments:[],memos:[]};
+}
+
+data=getLocalData();
+
+function cleanData(){
+  const roomIds=new Set(data.rooms.map(r=>String(r.id)));
+  const beforePayments=data.payments.length, beforeMemos=data.memos.length;
+  data.payments=data.payments.filter(p=>roomIds.has(String(p.roomId)));
+  const paymentIds=new Set(data.payments.map(p=>String(p.id)));
+  data.memos=data.memos.filter(m=>(m.roomId==null||roomIds.has(String(m.roomId)))&&(m.paymentId==null||paymentIds.has(String(m.paymentId))));
+  return beforePayments!==data.payments.length||beforeMemos!==data.memos.length;
+}
+
+function saveLocal(){
+  try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}
+}
+
+async function loadFromSupabase(){
+  try{
+    const {data:row,error}=await supabaseClient.from('rent_manager_state').select('state').eq('id','main').maybeSingle();
+    if(error) throw error;
+    if(row && row.state){
+      const remote=row.state;
+      data={
+        rooms:Array.isArray(remote.rooms)?remote.rooms:[],
+        payments:Array.isArray(remote.payments)?remote.payments:[],
+        memos:Array.isArray(remote.memos)?remote.memos:[]
+      };
+      settings=remote.settings&&typeof remote.settings==='object'?remote.settings:{};
+      saveLocal();
+      return true;
+    }
+
+    // First connection: migrate existing browser data to Supabase.
+    settings=loadSettingsObject();
+    const payload={id:'main',state:{rooms:data.rooms||[],payments:data.payments||[],memos:data.memos||[],settings:settings||{}},updated_at:new Date().toISOString()};
+    const {error:insertError}=await supabaseClient.from('rent_manager_state').upsert(payload,{onConflict:'id'});
+    if(insertError) throw insertError;
+    return true;
+  }catch(error){
+    console.error('Supabase connection error:',error);
+    supabaseReady=false;
+    const msg=error?.message||String(error);
+    const hint=msg.toLowerCase().includes('row-level security')||msg.toLowerCase().includes('permission')?'\n\nYour Supabase table policies currently allow only authenticated users. Run the public/anon SQL I provided below.':'';
+    alert('Supabase could not connect.\n\n'+msg+hint+'\n\nThe app will continue using browser storage until the database policy is fixed.');
+    return false;
+  }
+}
+
+async function saveToSupabase(){
+  try{
+    const payload={id:'main',state:{rooms:data.rooms||[],payments:data.payments||[],memos:data.memos||[],settings:settings||{}},updated_at:new Date().toISOString()};
+    const {error}=await supabaseClient.from('rent_manager_state').upsert(payload,{onConflict:'id'});
+    if(error) throw error;
+    supabaseReady=true;
+    return true;
+  }catch(error){
+    console.error('Supabase save error:',error);
+    supabaseReady=false;
+    saveLocal();
+    console.warn('Saved locally because Supabase save failed.');
+    return false;
+  }
+}
+
+function loadSettingsObject(){
+  try{return JSON.parse(localStorage.getItem(KEY+'_settings')||'{}')||{};}catch(e){return {};}
+}
+
+cleanData();
+saveLocal();
+let editRoomId=null;
+let editMemoId=null;
+const today=new Date();
+const todayString=localDateString(today);
+document.getElementById('payDate').value=todayString;
+document.getElementById('memoDate').value=todayString;
+
+function localDateString(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+async function save(){
+  saveLocal();
+  await saveToSupabase();
+  renderAll();
+}
+function money(n){return '৳'+Number(n||0).toLocaleString('en-BD',{maximumFractionDigits:2})}
+function monthKey(d){return (d||todayString).slice(0,7)}
+function monthLabel(k){
+  const [y,m]=k.split('-').map(Number);
+  return new Date(y,m-1,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+}
+function paymentsFor(roomId,month=monthKey()){
+  return data.payments.filter(p=>p.roomId==roomId&&monthKey(p.date)===month).reduce((s,p)=>s+Number(p.amount||0),0);
+}
+function showSection(id,btn){
+  document.querySelector('.main').classList.toggle('data-workspace',id==='rooms'||id==='rent');
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const titles={
+    dashboard:['Dashboard','Overview of your property and monthly rent collection'],
+    rent:['Rent Collection','Track monthly payments and outstanding balances'],
+    rooms:['Rooms & Tenants','Manage rooms, tenants and monthly rent'],
+    memo:['Memo / Expenses','Record rent income and property expenses'],
+    reports:['Reports','Financial and occupancy summary'],
+    settings:['Settings','Configure your rental management system']
+  };
+  document.getElementById('pageTitle').textContent=titles[id][0];
+  document.getElementById('pageSub').textContent=titles[id][1];
+  renderAll();
+}
+function openModal(id){
+  populateRoomSelects();
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function populateRoomSelects(){
+  const opts=data.rooms.map(r=>`<option value="${r.id}">${escapeHTML(r.building||'Building 1')} — ${escapeHTML(r.no)} — ${escapeHTML(r.tenant||'Vacant')}</option>`).join('');
+  document.getElementById('payRoom').innerHTML=opts;
+  const mb=document.getElementById('memoBuilding'); if(mb){const selected=mb.value;const bs=[...new Set(data.rooms.map(r=>r.building||'Building 1'))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));mb.innerHTML='<option value="">All</option>'+bs.map(b=>`<option value="${escapeHTML(b)}">${escapeHTML(b)}</option>`).join('');if(bs.includes(selected))mb.value=selected;}
+  filterMemoRooms();
+  refreshBuildingRenameOptions();
+}
+function filterMemoRooms(){const b=document.getElementById('memoBuilding')?.value||'';const sel=document.getElementById('memoRoom');if(!sel)return;const chosen=sel.value;const rooms=data.rooms.filter(r=>!b||(r.building||'Building 1')===b);sel.innerHTML='<option value="">All</option>'+rooms.map(r=>`<option value="${r.id}">${escapeHTML(r.no)} — ${escapeHTML(r.tenant||'Vacant')}</option>`).join('');if(rooms.some(r=>String(r.id)===chosen))sel.value=chosen;}
+function escapeHTML(value){
+  return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function openRoomModal(id=null){
+  editRoomId=id;
+  const r=data.rooms.find(x=>x.id==id);
+  document.getElementById('roomModalTitle').textContent=r?'Edit Room':'Add Room';
+  document.getElementById('building').value=r?(r.building||'Building 1'):'Building 1';
+  document.getElementById('roomNo').value=r?r.no:'';
+  document.getElementById('tenant').value=r?r.tenant:'';
+  document.getElementById('phone').value=r?r.phone:'';
+  document.getElementById('roomRent').value=r?r.rent:'';
+  document.getElementById('electricity').value=r?r.electricity:0;
+  document.getElementById('checkInDate').value=r?(r.checkInDate||''):'';document.getElementById('checkOutDate').value=r?(r.checkOutDate||''):'';
+  document.getElementById('roomStatus').value=r?r.status:'Vacant';
+  openModal('roomModal');
+}
+function saveRoom(){
+  const buildingValue=document.getElementById('building').value;
+  const no=document.getElementById('roomNo').value.trim();
+  const tenantValue=document.getElementById('tenant').value.trim();
+  const phoneValue=document.getElementById('phone').value.trim();
+  const rentValue=Number(document.getElementById('roomRent').value||0);
+  const electricityValue=Number(document.getElementById('electricity').value||0);
+  const statusValue=document.getElementById('roomStatus').value;
+  const checkInDate=document.getElementById('checkInDate').value;const checkOutDate=document.getElementById('checkOutDate').value;
+  if(!no){alert('Room number is required');return}
+  if(rentValue<0||electricityValue<0){alert('Amounts cannot be negative');return}
+  const duplicate=data.rooms.some(r=>r.no.toLowerCase()===no.toLowerCase()&&r.building===buildingValue&&r.id!=editRoomId);
+  if(duplicate){alert('This room number already exists in this building');return}
+  const obj={id:editRoomId||Date.now(),building:buildingValue.trim()||'Building 1',no,tenant:tenantValue,phone:phoneValue,rent:rentValue,electricity:electricityValue,checkInDate,checkOutDate,status:statusValue};
+  if(editRoomId)data.rooms=data.rooms.map(r=>r.id==editRoomId?obj:r);
+  else data.rooms.push(obj);
+  closeModal('roomModal');
+  save();
+}
+function toggleAllRooms(checked){document.querySelectorAll('#roomTable .room-select').forEach(el=>el.checked=checked)}
+function deleteSelectedRooms(){
+  const ids=[...document.querySelectorAll('#roomTable .room-select:checked')].map(el=>el.value);
+  if(!ids.length){alert('Select one or more rooms to delete.');return}
+  if(!confirm(`Delete ${ids.length} selected room(s)? Related payment and memo history will be retained.`))return;
+  const set=new Set(ids.map(String));
+  const paymentIds=new Set(data.payments.filter(p=>set.has(String(p.roomId))).map(p=>String(p.id)));
+  data.rooms=data.rooms.filter(r=>!set.has(String(r.id)));
+  data.payments=data.payments.filter(p=>!set.has(String(p.roomId)));
+  data.memos=data.memos.filter(m=>!set.has(String(m.roomId))&&!paymentIds.has(String(m.paymentId)));
+  save();
+}
+function deleteRoom(id){
+  if(!confirm('Delete this room and its linked rent-payment records?'))return;
+  const paymentIds=new Set(data.payments.filter(p=>String(p.roomId)===String(id)).map(p=>String(p.id)));
+  data.rooms=data.rooms.filter(r=>String(r.id)!==String(id));
+  data.payments=data.payments.filter(p=>String(p.roomId)!==String(id));
+  data.memos=data.memos.filter(m=>String(m.roomId)!==String(id)&&!paymentIds.has(String(m.paymentId)));
+  save();
+}
+function savePayment(){
+  const roomId=Number(document.getElementById('payRoom').value);
+  const amount=Number(document.getElementById('payAmount').value||0);
+  const date=document.getElementById('payDate').value||todayString;
+  if(!roomId||amount<=0){alert('Select a room and enter a valid amount');return}
+  const r=data.rooms.find(x=>x.id==roomId);
+  if(!r){alert('Room not found');return}
+  const paymentId=Date.now();
+  const note=document.getElementById('payNote').value.trim();
+  data.payments.push({id:paymentId,roomId,date,amount,method:document.getElementById('payMethod').value,note});
+  data.memos.push({id:paymentId+'-memo',paymentId,type:'income',date,category:'Rent',roomId,amount,status:'Paid',description:note||`Rent payment — ${r.tenant||r.no}`});
+  document.getElementById('payAmount').value='';
+  document.getElementById('payNote').value='';
+  closeModal('paymentModal');
+  save();
+}
+function deletePayment(id){
+  if(!confirm('Delete this payment?'))return;
+  const p=data.payments.find(x=>x.id==id);
+  data.payments=data.payments.filter(x=>x.id!=id);
+  if(p)data.memos=data.memos.filter(m=>m.paymentId!==p.id);
+  save();
+}
+function memoFormValues(){return {type:document.getElementById('memoEntryType').value,date:document.getElementById('memoDate').value||todayString,category:document.getElementById('memoCategory').value,building:document.getElementById('memoBuilding')?.value||'',roomId:Number(document.getElementById('memoRoom').value)||null,amount:Number(document.getElementById('memoAmount').value||0),status:document.getElementById('memoStatus').value,invoiceNo:document.getElementById('memoInvoiceNo')?.value.trim()||'',description:document.getElementById('memoDescription').value.trim()||document.getElementById('memoCategory').value};}
+function saveMemo(){const v=memoFormValues();if(v.amount<=0){alert('Enter a valid amount');return}const room=data.rooms.find(r=>r.id==v.roomId);if(room)v.building=room.building||'Building 1';data.memos.push({id:Date.now(),...v});clearMemoForm();save();}
+function loadMemo(id){const m=data.memos.find(x=>x.id==id);if(!m)return;editMemoId=m.id;document.getElementById('memoEntryType').value=m.type;document.getElementById('memoDate').value=m.date||todayString;document.getElementById('memoCategory').value=m.category||'Other';document.getElementById('memoBuilding').value=m.building||(data.rooms.find(r=>r.id==m.roomId)?.building||'');filterMemoRooms();document.getElementById('memoRoom').value=m.roomId||'';document.getElementById('memoAmount').value=m.amount||0;document.getElementById('memoStatus').value=m.status||'Pending';document.getElementById('memoInvoiceNo').value=m.invoiceNo||'';document.getElementById('memoDescription').value=m.description||'';document.getElementById('memoFormMessage').textContent='Editing selected invoice. Use Edit Selected to save changes.';document.getElementById('memoDate').scrollIntoView({behavior:'smooth',block:'center'});}
+function updateMemo(){if(!editMemoId){alert('Select Edit from an existing memo first.');return}const v=memoFormValues();if(v.amount<=0){alert('Enter a valid amount');return}const room=data.rooms.find(r=>r.id==v.roomId);if(room)v.building=room.building||'Building 1';data.memos=data.memos.map(m=>m.id==editMemoId?{...m,...v}:m);clearMemoForm();save();}
+function toggleAllMemos(checked){document.querySelectorAll('#memoTable .memo-select').forEach(el=>el.checked=checked)}
+function deleteSelectedMemo(){const ids=[...document.querySelectorAll('#memoTable .memo-select:checked')].map(el=>el.value);if(ids.length){if(!confirm(`Delete ${ids.length} selected memo/expense record(s)?`))return;const set=new Set(ids.map(String));data.memos=data.memos.filter(m=>!set.has(String(m.id)));save();clearMemoForm();return}if(!editMemoId){alert('Select one or more memo rows, or load a memo into the form.');return}deleteMemo(editMemoId);clearMemoForm();}
+function clearMemoForm(){editMemoId=null;document.getElementById('memoEntryType').value='income';document.getElementById('memoDate').value=todayString;document.getElementById('memoCategory').value='Rent';document.getElementById('memoBuilding').value='';filterMemoRooms();document.getElementById('memoRoom').value='';document.getElementById('memoAmount').value='';document.getElementById('memoStatus').value='Pending';document.getElementById('memoInvoiceNo').value='';document.getElementById('memoDescription').value='';document.getElementById('memoFormMessage').textContent='Fill in the invoice and choose Save, or select Edit in the table.';}
+function printMemo(){const v=memoFormValues();if(!v.amount){alert('Enter invoice details first.');return}const room=data.rooms.find(r=>r.id==v.roomId);const w=window.open('','_blank','width=800,height=700');if(!w){alert('Please allow pop-ups to print the invoice.');return}w.document.write(`<html><head><title>Memo Invoice</title><style>body{font-family:Arial;padding:35px;color:#172033}h1{margin-bottom:5px}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{padding:12px;border:1px solid #ddd;text-align:left}.total{font-size:22px;font-weight:bold;text-align:right;margin-top:25px}</style></head><body><h1>${escapeHTML(getPropertyName())}</h1><p>Memo / Cash Book Invoice</p><hr><p><b>Reference:</b> ${escapeHTML(v.invoiceNo||('MEMO-'+Date.now()))} &nbsp; <b>Date:</b> ${escapeHTML(v.date)}</p><table><tr><th>Type</th><td>${escapeHTML(v.type)}</td></tr><tr><th>Category</th><td>${escapeHTML(v.category)}</td></tr><tr><th>Building</th><td>${escapeHTML(room?.building||v.building||'General')}</td></tr><tr><th>Room</th><td>${escapeHTML(room?.no||'General / Property')}</td></tr><tr><th>Description</th><td>${escapeHTML(v.description)}</td></tr><tr><th>Status</th><td>${escapeHTML(v.status)}</td></tr></table><div class="total">Amount: ${money(v.amount)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function getPropertyName(){try{return JSON.parse(localStorage.getItem(KEY+'_settings')||'{}').propertyName||'Rental Property'}catch(e){return 'Rental Property'}}
+function deleteMemo(id){
+  if(!confirm('Delete this memo?'))return;
+  data.memos=data.memos.filter(m=>m.id!=id);
+  save();
+}
+function renderDashboard(){
+  const currentMonth=monthKey();
+  const currentYear=currentMonth.slice(0,4);
+  const occupied=data.rooms.filter(r=>r.status==='Occupied');
+  const vacant=data.rooms.filter(r=>r.status==='Vacant');
+  const totalRooms=data.rooms.length;
+  const expectedMonthly=occupied.reduce((s,r)=>s+Number(r.rent||0),0);
+  const currentRoomIds=new Set(data.rooms.map(r=>String(r.id)));
+  const monthlyCollected=data.payments.filter(p=>currentRoomIds.has(String(p.roomId))&&monthKey(p.date)===currentMonth).reduce((s,p)=>s+Number(p.amount||0),0);
+  const annualExpected=expectedMonthly*12;
+  const annualCollected=data.payments.filter(p=>currentRoomIds.has(String(p.roomId))&&(p.date||'').slice(0,4)===currentYear).reduce((s,p)=>s+Number(p.amount||0),0);
+  const annualOutstanding=Math.max(0,annualExpected-annualCollected);
+  const monthlyOutstanding=Math.max(0,expectedMonthly-monthlyCollected);
+  const annualCollectionRate=annualExpected?annualCollected/annualExpected*100:0;
+  const annualDueRate=annualExpected?annualOutstanding/annualExpected*100:0;
+  const monthlyCollectionRate=expectedMonthly?monthlyCollected/expectedMonthly*100:0;
+  const monthlyDueRate=expectedMonthly?monthlyOutstanding/expectedMonthly*100:0;
+
+  document.getElementById('annualExpected').textContent=money(annualExpected);
+  document.getElementById('annualCollection').textContent=`${money(annualCollected)} || ${annualCollectionRate.toFixed(1)}%`;
+  document.getElementById('annualDue').textContent=`${money(annualOutstanding)} || ${annualDueRate.toFixed(1)}%`;
+  document.getElementById('roomOccupancy').textContent=totalRooms;
+  document.getElementById('occupiedRooms').textContent=`${occupied.length} || ${totalRooms?(occupied.length/totalRooms*100).toFixed(1):0}%`;
+  document.getElementById('vacantRooms').textContent=`${vacant.length} || ${totalRooms?(vacant.length/totalRooms*100).toFixed(1):0}%`;
+  document.getElementById('roomProportion').textContent=`${totalRooms?(occupied.length/totalRooms*100).toFixed(1):0}% occupied · ${totalRooms?(vacant.length/totalRooms*100).toFixed(1):0}% vacant`;
+  document.getElementById('totalRent').textContent=money(expectedMonthly);
+  document.getElementById('collected').textContent=`${money(monthlyCollected)} || ${monthlyCollectionRate.toFixed(1)}%`;
+  document.getElementById('outstanding').textContent=`${money(monthlyOutstanding)} || ${monthlyDueRate.toFixed(1)}%`;
+
+  const currentBills=data.memos.filter(m=>m.type==='expense'&&monthKey(m.date)===currentMonth);
+  const billSummary=category=>{const rows=currentBills.filter(m=>String(m.category||'').toLowerCase()===category.toLowerCase());const total=rows.reduce((s,m)=>s+Number(m.amount||0),0);const pending=rows.filter(m=>String(m.status||'Pending').toLowerCase()!=='paid').reduce((s,m)=>s+Number(m.amount||0),0);const paid=rows.filter(m=>String(m.status||'Pending').toLowerCase()==='paid').reduce((s,m)=>s+Number(m.amount||0),0);return {total,pending,paid};};
+  [['Electricity','electricityPending','electricityBillStatus'],['Water','waterPending','waterBillStatus'],['Gas','gasPaid','gasBillStatus']].forEach(([category,valueId,statusId])=>{const b=billSummary(category);document.getElementById(valueId).textContent=money(b.total);const status=document.getElementById(statusId);if(status)status.textContent=`Pending: ${money(b.pending)} · Paid: ${money(b.paid)}`;});
+
+  const progress=Math.min(100,monthlyCollectionRate);
+  document.getElementById('progressText').textContent=progress.toFixed(1)+'%';
+  document.getElementById('progressBar').style.width=progress+'%';
+
+  const buildings=[...new Set(data.rooms.map(r=>r.building||'Building 1'))].sort();
+  const buildingRows=buildings.map(building=>{
+    const rooms=data.rooms.filter(r=>(r.building||'Building 1')===building);
+    const occupiedRooms=rooms.filter(r=>r.status==='Occupied');
+    const expected=occupiedRooms.reduce((s,r)=>s+Number(r.rent||0),0);
+    const collected=occupiedRooms.reduce((s,r)=>s+paymentsFor(r.id,currentMonth),0);
+    const dues=Math.max(0,expected-collected);
+    const rate=expected?collected/expected*100:0;
+    return `<tr><td><b>${escapeHTML(building)}</b></td><td>${rooms.length}</td><td>${occupiedRooms.length}</td><td>${rooms.length-occupiedRooms.length}</td><td>${money(expected)}</td><td>${money(collected)}</td><td class="negative">${money(dues)}</td><td>${rate.toFixed(1)}%</td></tr>`;
+  }).join('');
+  const totalOccupied=occupied.length,totalVacant=totalRooms-totalOccupied,totalExpected=occupied.reduce((sum,r)=>sum+Number(r.rent||0),0),totalCollected=occupied.reduce((sum,r)=>sum+paymentsFor(r.id,currentMonth),0),totalDue=Math.max(0,totalExpected-totalCollected),totalRate=totalExpected?totalCollected/totalExpected*100:0;
+  document.getElementById('dashTable').innerHTML=(buildingRows||'<tr><td colspan="8" class="empty">No rooms added</td></tr>')+`<tr class="total-row"><td><b>TOTAL</b></td><td><b>${totalRooms}</b></td><td><b>${totalOccupied}</b></td><td><b>${totalVacant}</b></td><td><b>${money(totalExpected)}</b></td><td><b>${money(totalCollected)}</b></td><td class="negative"><b>${money(totalDue)}</b></td><td><b>${totalRate.toFixed(1)}%</b></td></tr>`;
+
+  renderRecentMemos();
+  renderTopDues();
+  drawCollectionChart();
+}
+function totalOutstandingAll(){
+  return data.rooms.filter(r=>r.status==='Occupied').reduce((s,r)=>s+Math.max(0,Number(r.rent||0)-paymentsFor(r.id)),0);
+}
+function renderRecentMemos(){
+  const recent=[...data.memos].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||String(b.id).localeCompare(String(a.id))).slice(0,5);
+  document.getElementById('recentMemoTable').innerHTML=recent.map(m=>{
+    const room=data.rooms.find(r=>r.id==m.roomId);
+    return `<tr><td>${escapeHTML(m.date||'-')}</td><td><span class="status ${m.type==='income'?'paid':'due'}">${escapeHTML(m.type)}</span></td><td>${escapeHTML(m.category||'-')}</td><td>${room?escapeHTML(room.no):'General'}</td><td>${escapeHTML(m.description||'-')}</td><td class="${m.type==='income'?'memo-income':'memo-cost'}">${m.type==='income'?'+':'-'}${money(m.amount)}</td></tr>`;
+  }).join('')||'<tr><td colspan="6" class="empty">No memos created yet</td></tr>';
+}
+function renderTopDues(){
+  const month=monthKey();
+  const dues=data.rooms.filter(r=>r.status==='Occupied').map(r=>{
+    const paid=paymentsFor(r.id,month);
+    return {...r,paid,due:Math.max(0,Number(r.rent||0)-paid)};
+  }).filter(r=>r.due>0).sort((a,b)=>b.due-a.due).slice(0,10);
+  document.getElementById('topDuesTable').innerHTML=dues.map(r=>`<tr><td>${escapeHTML(r.building||'Building 1')}</td><td><b>${escapeHTML(r.no)}</b></td><td>${escapeHTML(r.tenant||'-')}</td><td>${money(r.rent)}</td><td>${money(r.paid)}</td><td class="negative"><b>${money(r.due)}</b></td></tr>`).join('')||'<tr><td colspan="6" class="empty">No outstanding dues this month</td></tr>';
+}
+function durationText(r){if(!r.checkInDate)return '-';const start=new Date(r.checkInDate+'T12:00:00');const end=r.checkOutDate?new Date(r.checkOutDate+'T12:00:00'):new Date(todayString+'T12:00:00');if(Number.isNaN(start.getTime())||end<start)return '-';let months=(end.getFullYear()-start.getFullYear())*12+end.getMonth()-start.getMonth();if(end.getDate()<start.getDate())months--;months=Math.max(0,months);const years=Math.floor(months/12),rem=months%12;return (years?years+'y ':'')+(rem?rem+'m':(years?'':'<1m'))+(r.checkOutDate?' (completed)':' (current)');}
+function renderRent(){
+  const q=(document.getElementById('rentSearch').value||'').toLowerCase().trim();
+  const month=document.getElementById('monthFilter').value||monthKey();
+  const statusFilter=document.getElementById('rentStatusFilter')?.value||'all';
+  const all=data.rooms.map(r=>{const paid=paymentsFor(r.id,month),due=Math.max(0,Number(r.rent||0)-paid);const st=r.status!=='Occupied'?'Vacant':paid>=Number(r.rent||0)&&Number(r.rent||0)>0?'Paid':paid>0?'Partial':'Due';return {...r,paid,due,calcStatus:st};});
+  const buildings=[...new Set(data.rooms.map(r=>r.building||'Building 1'))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const totalRooms=all.length,occupiedRooms=all.filter(r=>r.status==='Occupied').length,vacantRooms=totalRooms-occupiedRooms;
+  const totalRent=all.filter(r=>r.status==='Occupied').reduce((sum,r)=>sum+Number(r.rent||0),0);
+  const paidRows=all.filter(r=>r.status==='Occupied'&&r.paid>0),dueRows=all.filter(r=>r.status==='Occupied'&&r.due>0);
+  const totalPaid=paidRows.reduce((sum,r)=>sum+r.paid,0),totalDue=dueRows.reduce((sum,r)=>sum+r.due,0);
+  const buildingBreakdown=buildings.map(b=>{const rows=all.filter(r=>(r.building||'Building 1')===b);const occ=rows.filter(r=>r.status==='Occupied').length;return `<span><b>${escapeHTML(b)}</b> · ${rows.length} rooms · ${occ} occupied · ${rows.length-occ} vacant</span>`}).join('');
+  document.getElementById('rentBuildingCards').innerHTML=`<div class="rent-landscape-title"><strong>Building Overview</strong><small>${buildings.length} building types</small></div><div class="summary-stat"><span>Buildings</span><b>${buildings.length}</b></div><div class="summary-stat"><span>Total Rooms</span><b>${totalRooms}</b></div><div class="summary-stat"><span>Total Rent</span><b>${money(totalRent)}</b></div><div class="summary-stat"><span>Total Paid (${paidRows.length})</span><b class="positive">${money(totalPaid)}</b></div><div class="summary-stat"><span>Total Due (${dueRows.length})</span><b class="negative">${money(totalDue)}</b></div><div class="rent-building-breakdown">${buildingBreakdown||'<span>No buildings yet</span>'}</div>`;
+  const rows=all.filter(r=>((r.no+' '+r.tenant+' '+r.building+' '+r.phone).toLowerCase().includes(q))&&(statusFilter==='all'||r.calcStatus.toLowerCase()===statusFilter));
+  document.getElementById('rentTable').innerHTML=rows.map(r=>`<tr><td>${escapeHTML(r.building||'Building 1')}</td><td><b>${escapeHTML(r.no)}</b></td><td>${escapeHTML(r.tenant||'-')}</td><td>${escapeHTML(r.phone||'-')}</td><td>${money(r.rent)}</td><td>${money(r.paid)}</td><td class="${r.due?'negative':'positive'}">${money(r.due)}</td><td>${durationText(r)}</td><td><span class="status ${r.calcStatus.toLowerCase()}">${r.calcStatus}</span></td><td>${r.status==='Occupied'?`<button class="btn secondary" onclick="openQuickPay(${JSON.stringify(r.id)})">Pay</button> `:''}<button class="btn secondary" onclick="openRoomModal(${JSON.stringify(r.id)})">Edit</button></td></tr>`).join('')||'<tr><td colspan="10" class="empty">No rooms found</td></tr>';
+}
+function openQuickPay(id){
+  openModal('paymentModal');
+  document.getElementById('payRoom').value=id;
+  const r=data.rooms.find(x=>x.id==id);
+  document.getElementById('payAmount').value=r?Math.max(0,r.rent-paymentsFor(id)):'';
+}
+function renderRooms(){
+  const occ=document.getElementById('occupancyFilter')?.value||'all';const buildingSelect=document.getElementById('buildingFilter');const selectedBuilding=buildingSelect?.value||'all';const rentRange=document.getElementById('rentRangeFilter')?.value||'all';
+  const buildings=[...new Set(data.rooms.map(r=>r.building||'Building 1'))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  if(buildingSelect){buildingSelect.innerHTML='<option value="all">All</option>'+buildings.map(b=>`<option value="${escapeHTML(b)}">${escapeHTML(b)}</option>`).join('');buildingSelect.value=buildings.includes(selectedBuilding)?selectedBuilding:'all';}
+  const bf=buildingSelect?.value||'all';const arr=data.rooms.filter(r=>{const rent=Number(r.rent||0);const rangeOk=rentRange==='all'||(rent>=Number(rentRange.split('-')[0])&&rent<=Number(rentRange.split('-')[1]));return (occ==='all'||r.status===occ)&&(bf==='all'||(r.building||'Building 1')===bf)&&rangeOk;});
+  const summary=document.getElementById('buildingSummaryCards');if(summary){const total=data.rooms.length,occupied=data.rooms.filter(r=>r.status==='Occupied').length,vacant=total-occupied,monthlyRent=data.rooms.filter(r=>r.status==='Occupied').reduce((sum,r)=>sum+Number(r.rent||0),0);summary.innerHTML=`<div class="summary-heading"><strong>Rooms Overview</strong></div><div class="summary-stat"><span>Buildings</span><b>${buildings.length}</b></div><div class="summary-stat"><span>Total Rooms</span><b>${total}</b></div><div class="summary-stat"><span>Occupied</span><b class="positive">${occupied}</b></div><div class="summary-stat"><span>Vacant</span><b class="negative">${vacant}</b></div><div class="summary-stat"><span>Monthly Rent</span><b>${money(monthlyRent)}</b></div>`;}
+  document.getElementById('roomTable').innerHTML=arr.map(r=>`<tr><td><input type="checkbox" class="room-select" value="${escapeHTML(r.id)}" aria-label="Select room ${escapeHTML(r.no)}"></td><td>${escapeHTML(r.building||'Building 1')}</td><td><b>${escapeHTML(r.no)}</b></td><td>${escapeHTML(r.tenant||'-')}</td><td>${escapeHTML(r.phone||'-')}</td><td>${money(r.rent)}</td><td>${r.electricity?money(r.electricity):'-'}</td><td>${escapeHTML(r.checkInDate||'-')}</td><td>${escapeHTML(r.checkOutDate||'-')}</td><td>${durationText(r)}</td><td><span class="status ${String(r.status||'Vacant').toLowerCase()}">${escapeHTML(r.status||'Vacant')}</span></td><td><button class="btn secondary" onclick="openRoomModal(${JSON.stringify(r.id)})">Edit</button> <button class="btn danger" onclick="deleteRoom(${JSON.stringify(r.id)})">Delete</button></td></tr>`).join('')||'<tr><td colspan="12" class="empty">No rooms found</td></tr>';
+}
+function drawCollectionChart(){
+  const canvas=document.getElementById('collectionChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const picker=document.getElementById('chartEndMonth');
+  const endKey=picker&&picker.value?picker.value:monthKey();
+  if(picker&&!picker.value)picker.value=endKey;
+  const [ey,em]=endKey.split('-').map(Number);
+  const endDate=new Date(ey,em-1,1,12);
+  const months=[];
+  for(let i=4;i>=0;i--){
+    const d=new Date(endDate);
+    d.setMonth(d.getMonth()-i);
+    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+  const currentRoomIds=new Set(data.rooms.map(r=>String(r.id)));
+  const vals=months.map(k=>data.payments.filter(p=>currentRoomIds.has(String(p.roomId))&&monthKey(p.date)===k).reduce((s,p)=>s+Number(p.amount||0),0));
+  const W=Math.max(320,canvas.parentElement.clientWidth-36),H=220,D=window.devicePixelRatio||1;
+  canvas.style.width='100%';
+  canvas.style.height=H+'px';
+  canvas.width=Math.round(W*D);
+  canvas.height=Math.round(H*D);
+  ctx.setTransform(D,0,0,D,0,0);
+  ctx.clearRect(0,0,W,H);
+  const max=Math.max(1,...vals);
+  const step=Math.pow(10,Math.floor(Math.log10(max)));
+  const niceMax=Math.ceil(max/step)*step;
+  const left=58,right=14,top=18,bottom=38,plotW=W-left-right,plotH=H-top-bottom;
+  ctx.font='12px Arial';
+  ctx.fillStyle='#6b7280';
+  ctx.strokeStyle='#e5e7eb';
+  ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const v=niceMax*i/4,y=top+plotH-(i/4)*plotH;
+    ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(W-right,y);ctx.stroke();
+    ctx.textAlign='left';
+    ctx.fillText(v>=1000?'৳'+(v/1000).toFixed(v%1000?1:0)+'k':'৳'+Math.round(v),2,y+4);
+  }
+  const barW=Math.min(48,plotW/7);
+  vals.forEach((v,i)=>{
+    const x=left+(i+.5)*(plotW/5),h=(v/niceMax)*plotH,y=top+plotH-h;
+    ctx.fillStyle='#4f46e5';
+    ctx.fillRect(x-barW/2,y,barW,h);
+    ctx.fillStyle='#374151';
+    ctx.textAlign='center';
+    ctx.fillText(v>=1000?'৳'+(v/1000).toFixed(1)+'k':'৳'+Math.round(v),x,Math.max(12,y-6));
+    ctx.fillText(monthLabel(months[i]).split(' ')[0].slice(0,3)+' '+months[i].slice(2,4),x,H-14);
+  });
+  ctx.textAlign='left';
+}
+function renderMemos(){
+  const selectAll=document.getElementById('selectAllMemos');if(selectAll)selectAll.checked=false;
+  const type=document.getElementById('memoType').value;
+  const q=(document.getElementById('memoSearch').value||'').toLowerCase();
+  const arr=data.memos.filter(m=>(type==='all'||m.type===type)&&((m.description||'')+' '+(m.category||'')+' '+(m.building||'')+' '+(data.rooms.find(r=>r.id==m.roomId)?.no||'')).toLowerCase().includes(q)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  document.getElementById('memoTable').innerHTML=arr.map(m=>{
+    const r=data.rooms.find(x=>x.id==m.roomId);
+    return `<tr><td><input type="checkbox" class="memo-select" value="${escapeHTML(m.id)}" aria-label="Select memo"></td><td>${escapeHTML(m.date)}</td><td><span class="status ${m.type==='income'?'paid':'due'}">${escapeHTML(m.type)}</span></td><td>${escapeHTML(m.category)}</td><td>${escapeHTML(m.building||(r?.building)||'General')}</td><td>${r?escapeHTML(r.no):'General'}</td><td>${escapeHTML(m.description)}</td><td class="${m.type==='income'?'memo-income':'memo-cost'}">${m.type==='income'?'+':'-'}${money(m.amount)}</td><td><button class="btn secondary" onclick="loadMemo(${JSON.stringify(m.id)})">Edit</button> <button class="btn danger" onclick="deleteMemo(${JSON.stringify(m.id)})">Delete</button></td></tr>`;
+  }).join('')||'<tr><td colspan="9" class="empty">No entries found</td></tr>';
+}
+function renderReports(){
+  const income=data.memos.filter(m=>m.type==='income').reduce((s,m)=>s+Number(m.amount||0),0);
+  const expense=data.memos.filter(m=>m.type==='expense').reduce((s,m)=>s+Number(m.amount||0),0);
+  const occ=data.rooms.length?data.rooms.filter(r=>r.status==='Occupied').length/data.rooms.length*100:0;
+  document.getElementById('reportIncome').textContent=money(income);
+  document.getElementById('reportExpense').textContent=money(expense);
+  document.getElementById('reportNet').textContent=money(income-expense);
+  document.getElementById('reportOcc').textContent=occ.toFixed(0)+'%';
+  const month=monthKey();const occupied=data.rooms.filter(r=>r.status==='Occupied');const vacant=data.rooms.length-occupied.length;const expected=occupied.reduce((s,r)=>s+Number(r.rent||0),0);const collected=occupied.reduce((s,r)=>s+paymentsFor(r.id,month),0);const due=Math.max(0,expected-collected);const annualExpected=occupied.reduce((s,r)=>s+Number(r.rent||0)*12,0);const buildingCount=new Set(data.rooms.map(r=>r.building||'Building 1')).size;const paidBills=data.memos.filter(m=>m.type==='expense'&&m.status==='Paid').reduce((s,m)=>s+Number(m.amount||0),0);const pendingBills=data.memos.filter(m=>m.type==='expense'&&(m.status||'Pending')!=='Paid').reduce((s,m)=>s+Number(m.amount||0),0);
+  document.getElementById('reportInsights').innerHTML=`<div class="report-mini">Buildings<b>${buildingCount}</b><span class="label">Property groups</span></div><div class="report-mini">Occupied Rooms<b>${occupied.length}</b><span class="label">${vacant} vacant out of ${data.rooms.length}</span></div><div class="report-mini">Expected This Month<b>${money(expected)}</b><span class="label">Occupied rooms only</span></div><div class="report-mini">Collected This Month<b class="positive">${money(collected)}</b><span class="label">${expected?(collected/expected*100).toFixed(1):0}% collection rate</span></div><div class="report-mini">Outstanding This Month<b class="negative">${money(due)}</b><span class="label">Rent still due</span></div><div class="report-mini">Annualized Rent<b>${money(annualExpected)}</b><span class="label">Based on occupied rooms</span></div><div class="report-mini">Paid Expenses<b>${money(paidBills)}</b><span class="label">All recorded expenses</span></div><div class="report-mini">Pending Expenses<b class="negative">${money(pendingBills)}</b><span class="label">Unpaid bill entries</span></div>`;
+  const months=[...new Set(data.memos.map(m=>monthKey(m.date)))].sort().reverse();
+  document.getElementById('reportSummary').innerHTML=months.length?months.map(k=>{
+    const inc=data.memos.filter(m=>monthKey(m.date)===k&&m.type==='income').reduce((s,m)=>s+Number(m.amount||0),0);
+    const ex=data.memos.filter(m=>monthKey(m.date)===k&&m.type==='expense').reduce((s,m)=>s+Number(m.amount||0),0);
+    return `<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--border)"><b>${monthLabel(k)}</b><span class="positive">Income ${money(inc)}</span><span class="negative">Expense ${money(ex)}</span><b>Net ${money(inc-ex)}</b></div>`;
+  }).join(''):'<div class="empty">Add transactions to generate reports.</div>';
+}
+function renderAll(){
+  renderDashboard();
+  renderRent();
+  renderRooms();
+  renderMemos();
+  renderReports();
+  updateSystemSummary();
+}
+function initMonthFilter(){
+  const k=monthKey(),arr=[];
+  const [y,m]=k.split('-').map(Number);
+  for(let i=0;i<12;i++){
+    const d=new Date(y,m-1-i,1,12);
+    arr.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+  document.getElementById('monthFilter').innerHTML=arr.map(x=>`<option value="${x}">${monthLabel(x)}</option>`).join('');
+}
+function refreshBuildingRenameOptions(){const sel=document.getElementById('renameBuildingSelect');if(!sel)return;const old=sel.value;const bs=[...new Set(data.rooms.map(r=>r.building||'Building 1'))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));sel.innerHTML='<option value="">All</option>'+bs.map(b=>`<option value="${escapeHTML(b)}">${escapeHTML(b)}</option>`).join('');if(bs.includes(old))sel.value=old;}
+function loadBuildingRename(){const b=document.getElementById('renameBuildingSelect').value;document.getElementById('renameBuildingInput').value=b;}
+function renameBuilding(){const old=document.getElementById('renameBuildingSelect').value;const name=document.getElementById('renameBuildingInput').value.trim();if(!old){alert('Select an existing building first.');return}if(!name){alert('Enter the new building name.');return}if(name!==old&&data.rooms.some(r=>(r.building||'Building 1')===name)){alert('A building with this name already exists.');return}data.rooms=data.rooms.map(r=>(r.building||'Building 1')===old?{...r,building:name}:r);data.memos=data.memos.map(m=>m.building===old?{...m,building:name}:m);save();refreshBuildingRenameOptions();document.getElementById('renameBuildingSelect').value=name;document.getElementById('renameBuildingInput').value=name;alert('Building name updated.');}
+function saveSettings(){
+  const dueDay=Number(document.getElementById('dueDay').value||10);
+  const defaultRent=Number(document.getElementById('defaultRent').value||0);
+  const defaultElectricityCharge=Number(document.getElementById('defaultElectricityCharge').value||0);
+  if(dueDay<1||dueDay>31){alert('Payment due day must be between 1 and 31.');return}
+  if(defaultRent<0||defaultElectricityCharge<0){alert('Default amounts cannot be negative.');return}
+  settings={
+    propertyName:document.getElementById('propertyName').value.trim()||'My Rental Property',
+    currency:document.getElementById('currency').value,
+    defaultElectricity:document.getElementById('defaultElectricity').value,
+    dueDay:String(dueDay),
+    defaultRent,
+    defaultElectricityCharge,
+    propertyPhone:document.getElementById('propertyPhone').value.trim(),
+    propertyAddress:document.getElementById('propertyAddress').value.trim()
+  };
+  try{localStorage.setItem(KEY+'_settings',JSON.stringify(settings));}catch(e){}
+  document.getElementById('bulkRoomRent').value=defaultRent;
+  document.getElementById('bulkRoomElectricity').value=defaultElectricityCharge;
+  saveToSupabase();
+  alert('Settings saved successfully.');
+  updateSystemSummary();
+}
+function loadSettings(){
+  try{
+    const s=settings&&Object.keys(settings).length?settings:loadSettingsObject();
+    if(s.propertyName!==undefined)document.getElementById('propertyName').value=s.propertyName;
+    if(s.currency)document.getElementById('currency').value=s.currency;
+    if(s.defaultElectricity)document.getElementById('defaultElectricity').value=s.defaultElectricity;
+    if(s.dueDay!==undefined)document.getElementById('dueDay').value=s.dueDay;
+    if(s.defaultRent!==undefined)document.getElementById('defaultRent').value=s.defaultRent;
+    if(s.defaultElectricityCharge!==undefined)document.getElementById('defaultElectricityCharge').value=s.defaultElectricityCharge;
+    if(s.propertyPhone!==undefined)document.getElementById('propertyPhone').value=s.propertyPhone;
+    if(s.propertyAddress!==undefined)document.getElementById('propertyAddress').value=s.propertyAddress;
+    document.getElementById('bulkRoomRent').value=s.defaultRent||0;
+    document.getElementById('bulkRoomElectricity').value=s.defaultElectricityCharge||0;
+  }catch(e){}
+}
+function getBulkRoomValues(){
+  const buildingNo=Number(document.getElementById('bulkBuildingNo').value);
+  const count=Number(document.getElementById('bulkRoomCount').value);
+  const rent=Number(document.getElementById('bulkRoomRent').value||0);
+  const electricity=Number(document.getElementById('bulkRoomElectricity').value||0);
+  if(!Number.isInteger(buildingNo)||buildingNo<1){alert('Enter a valid building number.');return null}
+  if(!Number.isInteger(count)||count<1||count>99){alert('Enter a room count from 1 to 99 per building.');return null}
+  if(rent<0||electricity<0){alert('Rent and electricity cannot be negative.');return null}
+  const building='Building '+buildingNo;
+  const rooms=Array.from({length:count},(_,i)=>({building,no:String(buildingNo*100+i+1),tenant:'',phone:'',rent,electricity,status:'Vacant'}));
+  const duplicates=rooms.filter(n=>data.rooms.some(r=>(r.building||'Building 1')===building&&String(r.no).toLowerCase()===n.no.toLowerCase()));
+  if(duplicates.length){
+    alert('Cannot generate rooms because these room numbers already exist: '+duplicates.slice(0,8).map(r=>r.no).join(', ')+(duplicates.length>8?'…':''));
+    return null;
+  }
+  return {building,rooms};
+}
+function previewBulkRooms(){
+  const result=getBulkRoomValues();
+  const preview=document.getElementById('bulkRoomPreview');
+  if(!result){preview.textContent='';return}
+  const numbers=result.rooms.map(r=>r.no);
+  preview.textContent=`Preview: ${result.building} · ${numbers.length} vacant rooms · ${numbers[0]} to ${numbers[numbers.length-1]} · Rent ${money(result.rooms[0].rent)} · Electricity ${money(result.rooms[0].electricity)}.`;
+}
+function generateBulkRooms(){
+  const result=getBulkRoomValues();
+  if(!result)return;
+  const numbers=result.rooms.map(r=>r.no);
+  if(!confirm(`Create ${result.rooms.length} vacant rooms in ${result.building}, numbered ${numbers[0]}–${numbers[numbers.length-1]}? Existing records will not be changed.`))return;
+  let base=Date.now();
+  while(data.rooms.some(r=>Number(r.id)>=base&&Number(r.id)<base+result.rooms.length))base+=result.rooms.length+1;
+  result.rooms.forEach((r,i)=>data.rooms.push({id:base+i, ...r}));
+  document.getElementById('bulkRoomPreview').textContent=`Created ${result.rooms.length} vacant rooms in ${result.building}. They are now available in Rooms & Tenants.`;
+  save();
+}
+function updateSystemSummary(){
+  const buildings=new Set(data.rooms.map(r=>r.building||'Building 1'));
+  const occupied=data.rooms.filter(r=>r.status==='Occupied').length;
+  const vacant=data.rooms.length-occupied;
+  document.getElementById('systemSummary').textContent=`Buildings: ${buildings.size} · Total rooms: ${data.rooms.length} · Occupied: ${occupied} · Vacant: ${vacant} · Payment transactions: ${data.payments.length} · Memo entries: ${data.memos.length}`;
+}
+function exportBackup(){
+  const payload={...data,settings:settings||loadSettingsObject(),exportedAt:new Date().toISOString(),format:'rent_manager_backup_v1'};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='rent-management-backup-'+todayString+'.json';
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function importBackup(event){
+  const file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const incoming=JSON.parse(reader.result);
+      if(!incoming||!Array.isArray(incoming.rooms)||!Array.isArray(incoming.payments)||!Array.isArray(incoming.memos))throw new Error('Invalid backup structure');
+      if(!confirm('Import this backup and replace the current rooms, payments and memos? Export a backup first if needed.'))return;
+      data={rooms:incoming.rooms,payments:incoming.payments,memos:incoming.memos};
+      localStorage.setItem(KEY,JSON.stringify(data));
+      if(incoming.settings){settings=incoming.settings;localStorage.setItem(KEY+'_settings',JSON.stringify(settings));}
+      loadSettings();
+      populateRoomSelects();
+      save();
+      alert('Backup imported successfully.');
+    }catch(e){alert('Could not import this backup. Please select a valid Rent Management JSON backup.');}
+    finally{event.target.value='';}
+  };
+  reader.readAsText(file);
+}
+window.addEventListener('resize',()=>{
+  if(document.getElementById('dashboard').classList.contains('active'))drawCollectionChart();
+});
+async function initializeApp(){
+  initMonthFilter();
+  loadSettings();
+  populateRoomSelects();
+  renderAll();
+  const connected=await loadFromSupabase();
+  if(connected){
+    loadSettings();
+    populateRoomSelects();
+    renderAll();
+  }
+}
+initializeApp();
+</script>
+</body>
+</html>
